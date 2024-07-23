@@ -8,41 +8,44 @@
 
     <TextView
         android:id="@+id/coordinatesTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Coordinates will appear here"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="40dp"
+        android:text="Coordinates will appear here" />
 
     <EditText
         android:id="@+id/latitudeEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/coordinatesTextView"
-        android:layout_marginTop="16dp"
-        android:hint="Latitude" />
+        android:layout_marginTop="54dp"
+        android:autofillHints=""
+        android:hint="Latitude"
+        android:minHeight="48dp" />
 
     <EditText
         android:id="@+id/longitudeEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/latitudeEditText"
-        android:layout_marginTop="16dp"
-        android:hint="Longitude" />
+        android:layout_marginTop="51dp"
+        android:hint="Longitude"
+        android:minHeight="48dp" />
 
     <EditText
         android:id="@+id/pointEdtitText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/longitudeEditText"
-        android:layout_marginTop="16dp"
-        android:hint="Point" />
+        android:layout_marginTop="51dp"
+        android:hint="Point"
+        android:minHeight="48dp" />
 
     <Button
         android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/pointEdtitText"
-        android:layout_marginTop="141dp"
+        android:layout_marginTop="74dp"
         android:text="Save Coordinates" />
 </RelativeLayout>
