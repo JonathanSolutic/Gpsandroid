@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         coordinatesTextView = findViewById(R.id.coordinatesTextView);
         latitudeEditText = findViewById(R.id.latitudeEditText);
         longitudeEditText = findViewById(R.id.longitudeEditText);
-        pointEdtitText = findViewById(R.id.pointEdtitText);
+        pointEdtitText = findViewById(R.id.pointEditText);
         saveButton = findViewById(R.id.saveButton);
         databaseHelper = new DatabaseHelper(this);
 
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                     coordinatesTextView.setText(String.format("Latitude: %f\nLongitude: %f", latitude, longitude));
                     latitudeEditText.setText(String.valueOf(latitude));
                     longitudeEditText.setText(String.valueOf(longitude));
-                    sendCoordinatesToApi(latitude, longitude);
+                    //sendCoordinatesToApi(latitude, longitude);
                 }
             }
         };
