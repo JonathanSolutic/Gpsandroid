@@ -1,9 +1,12 @@
 package com.example.gpscoordonate;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +20,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.gpscoordonate.ApiService;
+import com.example.gpscoordonate.DatabaseHelper;
+import com.example.gpscoordonate.GpsCoordinate;
+import com.example.gpscoordonate.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -30,10 +37,14 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
-    private static final int REQUEST_LOCATION_PERMISSIONS = 1;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private TextView coordinatesTextView;
+    private EditText latitudeEditText;
+    private EditText longitudeEditText;
+    private EditText pointEdtitText;
+    private Button saveButton;
+    private DatabaseHelper databaseHelper;
 
     private final ActivityResultLauncher<String[]> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -46,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,12 +65,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         coordinatesTextView = findViewById(R.id.coordinatesTextView);
+        latitudeEditText = findViewById(R.id.latitudeEditText);
+        longitudeEditText = findViewById(R.id.longitudeEditText);
+        pointEdtitText = findViewById(R.id.pointEdtitText);
+        saveButton = findViewById(R.id.saveButton);
+        databaseHelper = new DatabaseHelper(this);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+//            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+//            return insets;
+//        });
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -71,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             startLocationUpdates();
         }
+
+        saveButton.setOnClickListener(v -> saveCoordinates());
     }
 
     private void startLocationUpdates() {
@@ -89,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
                     coordinatesTextView.setText(String.format("Latitude: %f\nLongitude: %f", latitude, longitude));
+                    latitudeEditText.setText(String.valueOf(latitude));
+                    longitudeEditText.setText(String.valueOf(longitude));
                     sendCoordinatesToApi(latitude, longitude);
                 }
             }
@@ -100,9 +121,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void saveCoordinates() {
+        String latitudeStr = latitudeEditText.getText().toString();
+        String longitudeStr = longitudeEditText.getText().toString();
+        String pointStr = pointEdtitText.getText().toString();
+
+        if (!latitudeStr.isEmpty() && !longitudeStr.isEmpty()) {
+            double latitude = Double.parseDouble(latitudeStr);
+            double longitude = Double.parseDouble(longitudeStr);
+            String point = pointStr;
+
+            databaseHelper.insertCoordinates(latitude, longitude,point);
+            Toast.makeText(this, "Coordinates saved to database", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Please enter valid coordinates", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void sendCoordinatesToApi(double latitude, double longitude) {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://192.168.40.1/")  // Use HTTPS
+                .baseUrl("https://localhost:7231/")  // Ensure the base URL is correct and secure
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -127,17 +165,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_LOCATION_PERMISSIONS) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startLocationUpdates();
-            } else {
-                Toast.makeText(this, "Location permission denied", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == REQUEST_LOCATION_PERMISSIONS) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                startLocationUpdates();
+//            } else {
+//                Toast.makeText(this, "Location permission denied", Toast.LENGTH_LONG).show();
+//            }
+//        }
+//    }
 
     @Override
     protected void onPause() {
